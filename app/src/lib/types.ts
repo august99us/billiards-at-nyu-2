@@ -9,7 +9,7 @@ export type TournamentStatus =
 	| 'complete';
 
 export type BracketType = 'single_elim' | 'double_elim';
-export type BestOf = 1 | 3 | 5;
+export type BestOf = 1 | 3 | 5 | 7;
 export type MatchTier = 'standard' | 'semiFinals' | 'finals';
 export type MatchPhase = 'round_robin' | 'bracket';
 export type MatchState = 'pending' | 'started' | 'in_progress' | 'completed' | 'forfeited';

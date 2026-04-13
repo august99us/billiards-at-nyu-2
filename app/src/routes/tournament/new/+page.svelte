@@ -20,7 +20,7 @@
 	let busy = $state(false);
 	let error = $state('');
 
-	const bestOfOptions: BestOf[] = [1, 3, 5];
+	const bestOfOptions: BestOf[] = [1, 3, 5, 7];
 
 	async function handleCreate() {
 		if (!name.trim()) {

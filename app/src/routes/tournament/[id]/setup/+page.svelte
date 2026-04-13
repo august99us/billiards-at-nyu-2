@@ -97,7 +97,14 @@
 {#if tournament}
 	<!-- Config summary -->
 	<section class="mb-4 rounded bg-mid p-4 text-sm">
-		<h3 class="mb-3 text-xs tracking-wide uppercase opacity-50">Configuration</h3>
+		<div class="mb-3 flex items-center justify-between">
+			<h3 class="text-xs tracking-wide uppercase opacity-50">Configuration</h3>
+			{#if isOrganizer && tournament.status === 'setup'}
+				<a href="/tournament/{tournamentId}/edit" class="text-xs opacity-40 hover:opacity-70"
+					>Edit</a
+				>
+			{/if}
+		</div>
 		<div class="flex flex-col gap-1.5 opacity-80">
 			<div class="flex justify-between">
 				<span>Game Type</span><span class="opacity-60">{tournament.game_type}</span>
