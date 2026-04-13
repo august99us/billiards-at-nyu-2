@@ -23,8 +23,14 @@
 	const bestOfOptions: BestOf[] = [1, 3, 5];
 
 	async function handleCreate() {
-		if (!name.trim()) { error = 'Tournament name is required'; return; }
-		if (!authStore.user) { error = 'You must be signed in'; return; }
+		if (!name.trim()) {
+			error = 'Tournament name is required';
+			return;
+		}
+		if (!authStore.user) {
+			error = 'You must be signed in';
+			return;
+		}
 
 		error = '';
 		busy = true;
@@ -36,9 +42,9 @@
 					sets: {
 						standard: standardSets,
 						semiFinals: semiFinalsSets,
-						finals: finalsSets,
-					},
-				},
+						finals: finalsSets
+					}
+				}
 			};
 
 			const ref = await addDoc(collection(db, 'tournaments'), {
@@ -48,7 +54,7 @@
 				createdBy: authStore.user.uid,
 				createdAt: serverTimestamp(),
 				players: [],
-				config,
+				config
 			});
 
 			goto(`/tournament/${ref.id}/setup`);
@@ -60,17 +66,22 @@
 	}
 </script>
 
-<div class="max-w-lg mx-auto">
-	<div class="flex items-center gap-3 mb-6">
-		<a href="/" class="opacity-50 hover:opacity-100 text-sm">← Back</a>
+<div class="mx-auto max-w-lg">
+	<div class="mb-6 flex items-center gap-3">
+		<a href="/" class="text-sm opacity-50 hover:opacity-100">← Back</a>
 		<h1 class="text-xl font-bold">New Tournament</h1>
 	</div>
 
-	<form onsubmit={(e) => { e.preventDefault(); handleCreate(); }} class="flex flex-col gap-6">
-
+	<form
+		onsubmit={(e) => {
+			e.preventDefault();
+			handleCreate();
+		}}
+		class="flex flex-col gap-6"
+	>
 		<!-- Basic Info -->
-		<section class="bg-mid rounded p-4 flex flex-col gap-4">
-			<h2 class="text-sm font-bold opacity-70 uppercase tracking-wide">Basic Info</h2>
+		<section class="flex flex-col gap-4 rounded bg-mid p-4">
+			<h2 class="text-sm font-bold tracking-wide uppercase opacity-70">Basic Info</h2>
 
 			<label class="flex flex-col gap-1.5">
 				<span class="text-xs opacity-60">Tournament Name</span>
@@ -79,7 +90,7 @@
 					bind:value={name}
 					placeholder="e.g. Spring 8-Ball Tournament"
 					required
-					class="bg-fg border border-fg-super rounded px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none w-full"
+					class="w-full rounded border border-fg-super bg-fg px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none"
 				/>
 			</label>
 
@@ -89,26 +100,26 @@
 					type="text"
 					bind:value={gameType}
 					placeholder="8-Ball, 9-Ball, etc."
-					class="bg-fg border border-fg-super rounded px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none w-full"
+					class="w-full rounded border border-fg-super bg-fg px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none"
 				/>
 			</label>
 		</section>
 
 		<!-- Round Robin Config -->
-		<section class="bg-mid rounded p-4 flex flex-col gap-4">
-			<h2 class="text-sm font-bold opacity-70 uppercase tracking-wide">Round Robin</h2>
+		<section class="flex flex-col gap-4 rounded bg-mid p-4">
+			<h2 class="text-sm font-bold tracking-wide uppercase opacity-70">Round Robin</h2>
 
 			<div class="flex flex-col gap-1.5">
 				<span class="text-xs opacity-60">Sets per Match</span>
 				<div class="flex gap-2">
-					{#each bestOfOptions as opt}
+					{#each bestOfOptions as opt (opt)}
 						<button
 							type="button"
 							onclick={() => (rrBestOf = opt)}
-							class="flex-1 py-2.5 rounded border text-sm transition-colors
+							class="flex-1 rounded border py-2.5 text-sm transition-colors
 								{rrBestOf === opt
-									? 'bg-fg-super border-content text-content'
-									: 'bg-fg border-fg-super opacity-60 hover:opacity-100'}"
+								? 'border-content bg-fg-super text-content'
+								: 'border-fg-super bg-fg opacity-60 hover:opacity-100'}"
 						>
 							Best of {opt}
 						</button>
@@ -118,8 +129,8 @@
 		</section>
 
 		<!-- Bracket Config -->
-		<section class="bg-mid rounded p-4 flex flex-col gap-4">
-			<h2 class="text-sm font-bold opacity-70 uppercase tracking-wide">Bracket</h2>
+		<section class="flex flex-col gap-4 rounded bg-mid p-4">
+			<h2 class="text-sm font-bold tracking-wide uppercase opacity-70">Bracket</h2>
 
 			<!-- Bracket Type -->
 			<div class="flex flex-col gap-1.5">
@@ -128,10 +139,10 @@
 					<button
 						type="button"
 						onclick={() => (bracketType = 'single_elim')}
-						class="flex-1 py-2.5 rounded border text-sm transition-colors
+						class="flex-1 rounded border py-2.5 text-sm transition-colors
 							{bracketType === 'single_elim'
-								? 'bg-fg-super border-content text-content'
-								: 'bg-fg border-fg-super opacity-60 hover:opacity-100'}"
+							? 'border-content bg-fg-super text-content'
+							: 'border-fg-super bg-fg opacity-60 hover:opacity-100'}"
 					>
 						Single Elimination
 					</button>
@@ -139,7 +150,7 @@
 						type="button"
 						disabled
 						title="Coming soon"
-						class="flex-1 py-2.5 rounded border text-sm bg-fg border-fg-super opacity-30 cursor-not-allowed"
+						class="flex-1 cursor-not-allowed rounded border border-fg-super bg-fg py-2.5 text-sm opacity-30"
 					>
 						Double Elimination
 					</button>
@@ -151,14 +162,14 @@
 				<div class="flex flex-col gap-1.5">
 					<span class="text-xs opacity-60">{label} — Sets per Match</span>
 					<div class="flex gap-2">
-						{#each bestOfOptions as opt}
+						{#each bestOfOptions as opt (opt)}
 							<button
 								type="button"
 								onclick={() => setter(opt)}
-								class="flex-1 py-2.5 rounded border text-sm transition-colors
+								class="flex-1 rounded border py-2.5 text-sm transition-colors
 									{value === opt
-										? 'bg-fg-super border-content text-content'
-										: 'bg-fg border-fg-super opacity-60 hover:opacity-100'}"
+									? 'border-content bg-fg-super text-content'
+									: 'border-fg-super bg-fg opacity-60 hover:opacity-100'}"
 							>
 								Best of {opt}
 							</button>
@@ -173,13 +184,13 @@
 		</section>
 
 		{#if error}
-			<p class="text-red-400 text-sm">{error}</p>
+			<p class="text-sm text-red-400">{error}</p>
 		{/if}
 
 		<button
 			type="submit"
 			disabled={busy}
-			class="bg-fg-super hover:bg-fg-top border border-fg-super text-content py-3 rounded transition-colors disabled:opacity-50 text-sm font-bold"
+			class="rounded border border-fg-super bg-fg-super py-3 text-sm font-bold text-content transition-colors hover:bg-fg-top disabled:opacity-50"
 		>
 			{busy ? 'Creating…' : 'Create Tournament'}
 		</button>

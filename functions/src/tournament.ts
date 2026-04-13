@@ -302,7 +302,7 @@ export async function advanceBracketWinner(
   const nextSnap = await nextMatchRef.get();
   if (!nextSnap.exists) return;
 
-  const nextData = nextSnap.data()!;
+  const nextData = nextSnap.data() ?? {};
   const playerField = nextSlot === "p1" ? "p1_id" : "p2_id";
   const otherField = nextSlot === "p1" ? "p2_id" : "p1_id";
 

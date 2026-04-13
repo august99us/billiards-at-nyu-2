@@ -54,7 +54,7 @@
 		const already = tournament.players.some((p) => p.uid === user.uid);
 		if (already) return;
 		await updateDoc(doc(db, 'tournaments', tournamentId), {
-			players: [...tournament.players, { uid: user.uid, displayName: user.displayName }],
+			players: [...tournament.players, { uid: user.uid, displayName: user.displayName }]
 		});
 		searchResults = [];
 		searchQuery = '';
@@ -63,7 +63,7 @@
 	async function removePlayer(uid: string) {
 		if (!tournament) return;
 		await updateDoc(doc(db, 'tournaments', tournamentId), {
-			players: tournament.players.filter((p) => p.uid !== uid),
+			players: tournament.players.filter((p) => p.uid !== uid)
 		});
 	}
 
@@ -88,52 +88,62 @@
 </script>
 
 <div class="mb-4">
-	<a href="/tournament/{tournamentId}" class="text-xs opacity-40 hover:opacity-70">← Back to Tournament</a>
-	<h2 class="text-lg font-bold mt-1">Setup</h2>
+	<a href="/tournament/{tournamentId}" class="text-xs opacity-40 hover:opacity-70"
+		>← Back to Tournament</a
+	>
+	<h2 class="mt-1 text-lg font-bold">Setup</h2>
 </div>
 
 {#if tournament}
 	<!-- Config summary -->
-	<section class="bg-mid rounded p-4 mb-4 text-sm">
-		<h3 class="text-xs opacity-50 uppercase tracking-wide mb-3">Configuration</h3>
+	<section class="mb-4 rounded bg-mid p-4 text-sm">
+		<h3 class="mb-3 text-xs tracking-wide uppercase opacity-50">Configuration</h3>
 		<div class="flex flex-col gap-1.5 opacity-80">
 			<div class="flex justify-between">
 				<span>Game Type</span><span class="opacity-60">{tournament.game_type}</span>
 			</div>
 			<div class="flex justify-between">
-				<span>Round Robin</span><span class="opacity-60">Best of {tournament.config.roundRobin.bestOf}</span>
+				<span>Round Robin</span><span class="opacity-60"
+					>Best of {tournament.config.roundRobin.bestOf}</span
+				>
 			</div>
 			<div class="flex justify-between">
 				<span>Bracket Format</span><span class="opacity-60">Single Elimination</span>
 			</div>
 			<div class="flex justify-between">
-				<span>Standard Rounds</span><span class="opacity-60">Best of {tournament.config.bracket.sets.standard}</span>
+				<span>Standard Rounds</span><span class="opacity-60"
+					>Best of {tournament.config.bracket.sets.standard}</span
+				>
 			</div>
 			<div class="flex justify-between">
-				<span>Semi-Finals</span><span class="opacity-60">Best of {tournament.config.bracket.sets.semiFinals}</span>
+				<span>Semi-Finals</span><span class="opacity-60"
+					>Best of {tournament.config.bracket.sets.semiFinals}</span
+				>
 			</div>
 			<div class="flex justify-between">
-				<span>Finals</span><span class="opacity-60">Best of {tournament.config.bracket.sets.finals}</span>
+				<span>Finals</span><span class="opacity-60"
+					>Best of {tournament.config.bracket.sets.finals}</span
+				>
 			</div>
 		</div>
 	</section>
 
 	<!-- Players -->
-	<section class="bg-mid rounded p-4 mb-4">
-		<h3 class="text-xs opacity-50 uppercase tracking-wide mb-3">
+	<section class="mb-4 rounded bg-mid p-4">
+		<h3 class="mb-3 text-xs tracking-wide uppercase opacity-50">
 			Players ({tournament.players.length})
 		</h3>
 
 		{#if tournament.players.length === 0}
-			<p class="text-sm opacity-40 mb-3">No players added yet.</p>
+			<p class="mb-3 text-sm opacity-40">No players added yet.</p>
 		{:else}
-			<ul class="flex flex-col gap-2 mb-4">
+			<ul class="mb-4 flex flex-col gap-2">
 				{#each tournament.players as player (player.uid)}
-					<li class="flex items-center justify-between bg-fg rounded px-3 py-2.5 text-sm">
+					<li class="flex items-center justify-between rounded bg-fg px-3 py-2.5 text-sm">
 						<span>{player.displayName}</span>
 						<button
 							onclick={() => removePlayer(player.uid)}
-							class="text-xs opacity-40 hover:opacity-100 hover:text-red-400 transition-colors ml-2"
+							class="ml-2 text-xs opacity-40 transition-colors hover:text-red-400 hover:opacity-100"
 						>
 							Remove
 						</button>
@@ -149,32 +159,32 @@
 				bind:value={searchQuery}
 				placeholder="Search by display name…"
 				onkeydown={(e) => e.key === 'Enter' && searchPlayers()}
-				class="flex-1 bg-fg border border-fg-super rounded px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none"
+				class="flex-1 rounded border border-fg-super bg-fg px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none"
 			/>
 			<button
 				onclick={searchPlayers}
 				disabled={searching}
-				class="bg-fg hover:bg-fg-top border border-fg-super px-4 py-2.5 rounded text-sm transition-colors disabled:opacity-50"
+				class="rounded border border-fg-super bg-fg px-4 py-2.5 text-sm transition-colors hover:bg-fg-top disabled:opacity-50"
 			>
 				Search
 			</button>
 		</div>
 
 		{#if searchError}
-			<p class="text-red-400 text-xs mt-2">{searchError}</p>
+			<p class="mt-2 text-xs text-red-400">{searchError}</p>
 		{/if}
 
 		{#if searchResults.length > 0}
 			<ul class="mt-2 flex flex-col gap-1">
 				{#each searchResults as result (result.uid)}
 					{@const alreadyAdded = tournament.players.some((p) => p.uid === result.uid)}
-					<li class="flex items-center justify-between bg-fg-top rounded px-3 py-2.5 text-sm">
+					<li class="flex items-center justify-between rounded bg-fg-top px-3 py-2.5 text-sm">
 						<span>{result.displayName}</span>
 						<button
 							onclick={() => addPlayer(result)}
 							disabled={alreadyAdded}
-							class="text-xs border border-fg-super px-2 py-1 rounded transition-colors
-								{alreadyAdded ? 'opacity-30 cursor-not-allowed' : 'hover:bg-fg'}"
+							class="rounded border border-fg-super px-2 py-1 text-xs transition-colors
+								{alreadyAdded ? 'cursor-not-allowed opacity-30' : 'hover:bg-fg'}"
 						>
 							{alreadyAdded ? 'Added' : 'Add'}
 						</button>
@@ -186,18 +196,18 @@
 
 	<!-- Start -->
 	{#if startError}
-		<p class="text-red-400 text-sm mb-2">{startError}</p>
+		<p class="mb-2 text-sm text-red-400">{startError}</p>
 	{/if}
 
 	{#if tournament.status !== 'setup'}
-		<p class="text-center text-sm opacity-50 py-2">
+		<p class="py-2 text-center text-sm opacity-50">
 			Tournament has already started ({tournament.status.replace('_', ' ')}).
 		</p>
 	{:else}
 		<button
 			onclick={handleStart}
 			disabled={starting || tournament.players.length < 2}
-			class="w-full bg-fg-super hover:bg-fg-top border border-fg-super text-content py-3 rounded text-sm font-bold transition-colors disabled:opacity-40"
+			class="w-full rounded border border-fg-super bg-fg-super py-3 text-sm font-bold text-content transition-colors hover:bg-fg-top disabled:opacity-40"
 		>
 			{starting ? 'Starting…' : `Start Round Robin (${tournament.players.length} players)`}
 		</button>

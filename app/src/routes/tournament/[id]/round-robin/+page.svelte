@@ -24,9 +24,7 @@
 	onDestroy(() => unsub?.());
 
 	const rrMatches = $derived(matches.filter((m) => m.phase === 'round_robin'));
-	const standings = $derived(
-		tournament ? computeStandings(tournament.players, rrMatches) : []
-	);
+	const standings = $derived(tournament ? computeStandings(tournament.players, rrMatches) : []);
 
 	function playerName(uid: string | null): string {
 		if (!uid) return 'TBD';
@@ -35,34 +33,43 @@
 
 	function stateChip(state: Match['state']): string {
 		switch (state) {
-			case 'pending': return 'opacity-40';
+			case 'pending':
+				return 'opacity-40';
 			case 'started':
-			case 'in_progress': return 'text-yellow-400';
-			case 'completed': return 'text-green-400';
-			case 'forfeited': return 'opacity-40';
+			case 'in_progress':
+				return 'text-yellow-400';
+			case 'completed':
+				return 'text-green-400';
+			case 'forfeited':
+				return 'opacity-40';
 		}
 	}
 
 	function stateLabel(state: Match['state']): string {
 		switch (state) {
-			case 'pending': return 'Pending';
-			case 'started': return 'Started';
-			case 'in_progress': return 'In Progress';
-			case 'completed': return 'Done';
-			case 'forfeited': return 'Forfeited';
+			case 'pending':
+				return 'Pending';
+			case 'started':
+				return 'Started';
+			case 'in_progress':
+				return 'In Progress';
+			case 'completed':
+				return 'Done';
+			case 'forfeited':
+				return 'Forfeited';
 		}
 	}
 </script>
 
 <div class="mb-4">
 	<a href="/tournament/{tournamentId}" class="text-xs opacity-40 hover:opacity-70">← Back</a>
-	<h2 class="text-lg font-bold mt-1">Round Robin</h2>
+	<h2 class="mt-1 text-lg font-bold">Round Robin</h2>
 </div>
 
 {#if tournament}
-	<RoundRobinStandings {standings} players={tournament.players} />
+	<RoundRobinStandings {standings} />
 
-	<h3 class="text-sm font-bold mt-6 mb-3 opacity-70">All Matches</h3>
+	<h3 class="mt-6 mb-3 text-sm font-bold opacity-70">All Matches</h3>
 
 	{#if rrMatches.length === 0}
 		<p class="text-sm opacity-40">No matches yet.</p>
@@ -71,28 +78,36 @@
 			{#each rrMatches as match (match.id)}
 				<button
 					onclick={() => goto(`/tournament/${tournamentId}/match/${match.id}`)}
-					class="bg-mid hover:bg-fg-top border border-fg-top rounded p-3 text-left transition-colors w-full"
+					class="w-full rounded border border-fg-top bg-mid p-3 text-left transition-colors hover:bg-fg-top"
 				>
 					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-2 min-w-0">
+						<div class="flex min-w-0 items-center gap-2">
 							<!-- P1 -->
-							<span class="text-sm truncate max-w-[100px] {match.winner === match.p1_id ? 'text-green-400 font-bold' : ''}">
+							<span
+								class="max-w-[100px] truncate text-sm {match.winner === match.p1_id
+									? 'font-bold text-green-400'
+									: ''}"
+							>
 								{playerName(match.p1_id)}
 							</span>
 							<!-- Score -->
-							<span class="text-sm tabular-nums shrink-0 opacity-70">
+							<span class="shrink-0 text-sm tabular-nums opacity-70">
 								{match.p1_wins} – {match.p2_wins}
 							</span>
 							<!-- P2 -->
-							<span class="text-sm truncate max-w-[100px] {match.winner === match.p2_id ? 'text-green-400 font-bold' : ''}">
+							<span
+								class="max-w-[100px] truncate text-sm {match.winner === match.p2_id
+									? 'font-bold text-green-400'
+									: ''}"
+							>
 								{playerName(match.p2_id)}
 							</span>
 						</div>
-						<span class="text-xs shrink-0 ml-2 {stateChip(match.state)}">
+						<span class="ml-2 shrink-0 text-xs {stateChip(match.state)}">
 							{stateLabel(match.state)}
 						</span>
 					</div>
-					<div class="text-xs opacity-40 mt-1">Best of {match.win_con * 2 - 1}</div>
+					<div class="mt-1 text-xs opacity-40">Best of {match.win_con * 2 - 1}</div>
 				</button>
 			{/each}
 		</div>

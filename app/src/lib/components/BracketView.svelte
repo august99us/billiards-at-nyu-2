@@ -2,6 +2,7 @@
 	import type { Match, TournamentPlayer } from '$lib/types';
 	import { matchIsPlayable } from '$lib/tournament';
 	import { goto } from '$app/navigation';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	let {
 		matches,
@@ -26,7 +27,7 @@
 
 	// Group matches by round (descending = first round first on screen)
 	const rounds = $derived.by(() => {
-		const map = new Map<number, Match[]>();
+		const map = new SvelteMap<number, Match[]>();
 		for (const m of bracketMatches) {
 			const r = m.metadata.round ?? 0;
 			if (!map.has(r)) map.set(r, []);
@@ -43,20 +44,21 @@
 
 	function tierLabel(match: Match): string {
 		switch (match.metadata.tier) {
-			case 'finals': return 'Final';
-			case 'semiFinals': return 'Semi-Final';
-			default: return `Round ${match.metadata.round ?? ''}`;
+			case 'finals':
+				return 'Final';
+			case 'semiFinals':
+				return 'Semi-Final';
+			default:
+				return `Round ${match.metadata.round ?? ''}`;
 		}
 	}
 
-	function matchColor(match: Match): string {
-		if (match.state === 'completed' || match.state === 'forfeited') return 'opacity-60';
-		if (matchIsPlayable(match, matches)) return 'border-content/30 hover:border-content/60';
-		return 'opacity-40';
-	}
-
 	function handleMatchClick(match: Match) {
-		if (matchIsPlayable(match, matches) || match.state === 'started' || match.state === 'in_progress') {
+		if (
+			matchIsPlayable(match, matches) ||
+			match.state === 'started' ||
+			match.state === 'in_progress'
+		) {
 			goto(`/tournament/${tournamentId}/match/${match.id}`);
 		}
 	}
@@ -64,12 +66,12 @@
 
 <div class="overflow-x-auto">
 	{#if bracketMatches.length === 0}
-		<p class="text-sm opacity-40 py-4">No bracket matches yet.</p>
+		<p class="py-4 text-sm opacity-40">No bracket matches yet.</p>
 	{:else}
-		<div class="flex gap-4 min-w-max pb-4">
-			{#each rounds as [roundNum, roundMatches]}
-				<div class="flex flex-col gap-3 w-44">
-					<div class="text-xs opacity-40 text-center pb-1 border-b border-fg-top">
+		<div class="flex min-w-max gap-4 pb-4">
+			{#each rounds as [roundNum, roundMatches] (roundNum)}
+				<div class="flex w-44 flex-col gap-3">
+					<div class="border-b border-fg-top pb-1 text-center text-xs opacity-40">
 						{roundMatches[0] ? tierLabel(roundMatches[0]) : `Round ${roundNum}`}
 					</div>
 					{#each roundMatches as match (match.id)}
@@ -77,43 +79,58 @@
 						{@const active = match.state === 'started' || match.state === 'in_progress'}
 						<button
 							onclick={() => handleMatchClick(match)}
-							disabled={!playable && !active && match.state !== 'completed' && match.state !== 'forfeited'}
-							class="bg-mid border rounded p-2 text-left transition-all w-full
+							disabled={!playable &&
+								!active &&
+								match.state !== 'completed' &&
+								match.state !== 'forfeited'}
+							class="w-full rounded border bg-mid p-2 text-left transition-all
 								{match.state === 'completed' || match.state === 'forfeited'
-									? 'border-fg-top opacity-70'
-									: active
+								? 'border-fg-top opacity-70'
+								: active
 									? 'border-yellow-500/50 bg-fg'
 									: playable
-									? 'border-fg-super hover:bg-fg cursor-pointer'
-									: 'border-fg-top opacity-40 cursor-not-allowed'}"
+										? 'cursor-pointer border-fg-super hover:bg-fg'
+										: 'cursor-not-allowed border-fg-top opacity-40'}"
 						>
 							<!-- P1 -->
-							<div class="flex items-center justify-between py-1 border-b border-fg-top">
-								<span class="text-xs truncate max-w-[100px]
-									{match.winner === match.p1_id ? 'text-green-400 font-bold' : ''}">
+							<div class="flex items-center justify-between border-b border-fg-top py-1">
+								<span
+									class="max-w-[100px] truncate text-xs
+									{match.winner === match.p1_id ? 'font-bold text-green-400' : ''}"
+								>
 									{playerName(match.p1_id)}
 								</span>
-								<span class="text-xs tabular-nums ml-2 {match.winner === match.p1_id ? 'text-green-400' : 'opacity-60'}">
+								<span
+									class="ml-2 text-xs tabular-nums {match.winner === match.p1_id
+										? 'text-green-400'
+										: 'opacity-60'}"
+								>
 									{match.p1_wins}
 								</span>
 							</div>
 							<!-- P2 -->
 							<div class="flex items-center justify-between py-1">
-								<span class="text-xs truncate max-w-[100px]
-									{match.winner === match.p2_id ? 'text-green-400 font-bold' : ''}">
+								<span
+									class="max-w-[100px] truncate text-xs
+									{match.winner === match.p2_id ? 'font-bold text-green-400' : ''}"
+								>
 									{playerName(match.p2_id)}
 								</span>
-								<span class="text-xs tabular-nums ml-2 {match.winner === match.p2_id ? 'text-green-400' : 'opacity-60'}">
+								<span
+									class="ml-2 text-xs tabular-nums {match.winner === match.p2_id
+										? 'text-green-400'
+										: 'opacity-60'}"
+								>
 									{match.p2_wins}
 								</span>
 							</div>
 							<!-- Status chip -->
 							{#if active}
-								<div class="text-[10px] text-yellow-400 mt-1">● In progress</div>
+								<div class="mt-1 text-[10px] text-yellow-400">● In progress</div>
 							{:else if match.state === 'completed'}
-								<div class="text-[10px] text-green-400 mt-1">✓ Done</div>
+								<div class="mt-1 text-[10px] text-green-400">✓ Done</div>
 							{:else if match.state === 'forfeited'}
-								<div class="text-[10px] opacity-50 mt-1">Forfeited</div>
+								<div class="mt-1 text-[10px] opacity-50">Forfeited</div>
 							{/if}
 						</button>
 					{/each}

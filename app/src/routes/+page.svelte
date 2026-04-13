@@ -31,12 +31,12 @@
 	};
 </script>
 
-<div class="flex items-center justify-between mb-6">
+<div class="mb-6 flex items-center justify-between">
 	<h1 class="text-xl font-bold">Tournaments</h1>
 	{#if authStore.user}
 		<a
 			href="/tournament/new"
-			class="bg-fg hover:bg-fg-top border border-fg-super text-content px-4 py-2 rounded text-sm transition-colors"
+			class="rounded border border-fg-super bg-fg px-4 py-2 text-sm text-content transition-colors hover:bg-fg-top"
 		>
 			+ New Tournament
 		</a>
@@ -46,17 +46,17 @@
 {#if loading}
 	<p class="text-sm opacity-50">Loading…</p>
 {:else if tournaments.length === 0}
-	<div class="bg-mid rounded p-8 text-center">
-		<p class="opacity-50 mb-4">No tournaments yet.</p>
+	<div class="rounded bg-mid p-8 text-center">
+		<p class="mb-4 opacity-50">No tournaments yet.</p>
 		{#if authStore.user}
 			<a
 				href="/tournament/new"
-				class="bg-fg hover:bg-fg-top border border-fg-super text-content px-4 py-2 rounded text-sm transition-colors"
+				class="rounded border border-fg-super bg-fg px-4 py-2 text-sm text-content transition-colors hover:bg-fg-top"
 			>
 				Create the first one
 			</a>
 		{:else}
-			<a href="/auth" class="underline text-sm">Sign in</a> to create a tournament.
+			<a href="/auth" class="text-sm underline">Sign in</a> to create a tournament.
 		{/if}
 	</div>
 {:else}
@@ -64,16 +64,16 @@
 		{#each tournaments as t (t.id)}
 			<button
 				onclick={() => goto(`/tournament/${t.id}`)}
-				class="bg-mid hover:bg-fg-top border border-fg-top rounded p-4 text-left transition-colors w-full"
+				class="w-full rounded border border-fg-top bg-mid p-4 text-left transition-colors hover:bg-fg-top"
 			>
 				<div class="flex items-start justify-between gap-2">
 					<div class="min-w-0">
-						<div class="font-bold truncate">{t.name}</div>
-						<div class="text-xs opacity-60 mt-0.5">{t.game_type || 'Tournament'}</div>
+						<div class="truncate font-bold">{t.name}</div>
+						<div class="mt-0.5 text-xs opacity-60">{t.game_type || 'Tournament'}</div>
 					</div>
-					<div class="text-right shrink-0">
+					<div class="shrink-0 text-right">
 						<div class="text-xs {statusColors[t.status] ?? ''}">{statusLabel(t.status)}</div>
-						<div class="text-xs opacity-40 mt-0.5">{t.players?.length ?? 0} players</div>
+						<div class="mt-0.5 text-xs opacity-40">{t.players?.length ?? 0} players</div>
 					</div>
 				</div>
 			</button>
@@ -82,7 +82,7 @@
 {/if}
 
 {#if !authStore.user && !authStore.loading}
-	<p class="text-xs opacity-40 mt-8 text-center">
+	<p class="mt-8 text-center text-xs opacity-40">
 		<a href="/auth" class="underline">Sign in</a> to create or manage tournaments.
 	</p>
 {/if}

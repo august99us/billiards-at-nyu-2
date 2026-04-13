@@ -15,12 +15,13 @@ setGlobalOptions({maxInstances: 10});
 export const onTournamentUpdate = onDocumentUpdated(
   "tournaments/{tournamentId}",
   async (event) => {
-    const before = event.data?.before.data();
-    const after = event.data?.after.data();
+    if (!event.data) return;
+    const before = event.data.before.data();
+    const after = event.data.after.data();
     if (!before || !after) return;
 
     const tournamentId = event.params.tournamentId;
-    const tournamentRef = event.data!.after.ref;
+    const tournamentRef = event.data.after.ref;
 
     // Setup → RR awaiting: generate round robin matches
     if (before.status === "setup" && after.status === "rr_awaiting") {
@@ -57,12 +58,13 @@ export const onTournamentUpdate = onDocumentUpdated(
 export const onMatchUpdate = onDocumentUpdated(
   "tournaments/{tournamentId}/matches/{matchId}",
   async (event) => {
-    const before = event.data?.before.data();
-    const after = event.data?.after.data();
+    if (!event.data) return;
+    const before = event.data.before.data();
+    const after = event.data.after.data();
     if (!before || !after) return;
 
     const {tournamentId} = event.params;
-    const matchRef = event.data!.after.ref;
+    const matchRef = event.data.after.ref;
 
     // ── Win detection ──────────────────────────────────────────────────────
     // Only act if winner isn't already set and scores changed

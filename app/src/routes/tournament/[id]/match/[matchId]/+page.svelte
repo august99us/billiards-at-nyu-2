@@ -7,7 +7,6 @@
 	import { startMatch, addWin, setWins, forfeitMatch, matchIsPlayable } from '$lib/tournament';
 	import type { Tournament, Match } from '$lib/types';
 	import type { PageData } from './$types';
-	import { goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 
@@ -27,22 +26,23 @@
 				match = { id: snap.id, ...snap.data() } as Match;
 			}
 		});
-		unsubAll = onSnapshot(
-			collection(db, 'tournaments', tournamentId, 'matches'),
-			(snap) => {
-				allMatches = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Match);
-			}
-		);
+		unsubAll = onSnapshot(collection(db, 'tournaments', tournamentId, 'matches'), (snap) => {
+			allMatches = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Match);
+		});
 	});
 
-	onDestroy(() => { unsub?.(); unsubAll?.(); });
+	onDestroy(() => {
+		unsub?.();
+		unsubAll?.();
+	});
 
 	const isOrganizer = $derived(
 		!!authStore.user && !!tournament && authStore.user.uid === tournament.createdBy
 	);
 	const isPlayer = $derived(
-		!!authStore.user && !!match &&
-		(authStore.user.uid === match.p1_id || authStore.user.uid === match.p2_id)
+		!!authStore.user &&
+			!!match &&
+			(authStore.user.uid === match.p1_id || authStore.user.uid === match.p2_id)
 	);
 	const canInteract = $derived(isOrganizer || isPlayer);
 	const playable = $derived(match ? matchIsPlayable(match, allMatches) : false);
@@ -100,9 +100,12 @@
 
 	function tierLabel(m: Match): string {
 		switch (m.metadata.tier) {
-			case 'finals': return 'Final';
-			case 'semiFinals': return 'Semi-Final';
-			default: return 'Round Robin';
+			case 'finals':
+				return 'Final';
+			case 'semiFinals':
+				return 'Semi-Final';
+			default:
+				return 'Round Robin';
 		}
 	}
 </script>
@@ -121,35 +124,37 @@
 	{@const active = match.state === 'started' || match.state === 'in_progress'}
 
 	<!-- Match header -->
-	<div class="text-center mb-6">
-		<p class="text-xs opacity-40 mb-1">{match.phase === 'bracket' ? tierLabel(match) : 'Round Robin'}</p>
+	<div class="mb-6 text-center">
+		<p class="mb-1 text-xs opacity-40">
+			{match.phase === 'bracket' ? tierLabel(match) : 'Round Robin'}
+		</p>
 		<p class="text-sm opacity-60">First to {firstTo}</p>
 	</div>
 
 	<!-- ── Pending (awaiting prerequisites) ── -->
 	{#if match.state === 'pending' && !playable}
-		<div class="bg-mid rounded p-6 text-center">
-			<div class="flex justify-between items-center mb-4">
-				<span class="font-semibold text-lg">{p1Name}</span>
-				<span class="opacity-40 text-sm">vs</span>
-				<span class="font-semibold text-lg">{p2Name}</span>
+		<div class="rounded bg-mid p-6 text-center">
+			<div class="mb-4 flex items-center justify-between">
+				<span class="text-lg font-semibold">{p1Name}</span>
+				<span class="text-sm opacity-40">vs</span>
+				<span class="text-lg font-semibold">{p2Name}</span>
 			</div>
 			<p class="text-sm opacity-50">Waiting for earlier matches to finish.</p>
 		</div>
 
-	<!-- ── Pending (ready to start) ── -->
+		<!-- ── Pending (ready to start) ── -->
 	{:else if match.state === 'pending' && playable}
-		<div class="bg-mid rounded p-6 text-center">
-			<div class="flex justify-between items-center mb-6">
-				<span class="font-semibold text-lg">{p1Name}</span>
-				<span class="opacity-40 text-sm">vs</span>
-				<span class="font-semibold text-lg">{p2Name}</span>
+		<div class="rounded bg-mid p-6 text-center">
+			<div class="mb-6 flex items-center justify-between">
+				<span class="text-lg font-semibold">{p1Name}</span>
+				<span class="text-sm opacity-40">vs</span>
+				<span class="text-lg font-semibold">{p2Name}</span>
 			</div>
 			{#if canInteract}
 				<button
 					onclick={handleStart}
 					disabled={busy}
-					class="bg-fg-super hover:bg-fg-top border border-fg-super text-content px-8 py-3 rounded text-sm font-bold transition-colors disabled:opacity-50 w-full max-w-xs"
+					class="w-full max-w-xs rounded border border-fg-super bg-fg-super px-8 py-3 text-sm font-bold text-content transition-colors hover:bg-fg-top disabled:opacity-50"
 				>
 					Start Match
 				</button>
@@ -158,23 +163,25 @@
 			{/if}
 		</div>
 
-	<!-- ── In Progress ── -->
+		<!-- ── In Progress ── -->
 	{:else if active}
-		<div class="bg-mid rounded overflow-hidden">
+		<div class="overflow-hidden rounded bg-mid">
 			<!-- Score display -->
 			<div class="grid grid-cols-2 divide-x divide-fg-top">
 				<!-- P1 -->
 				<div class="p-4 text-center">
-					<p class="text-xs opacity-50 mb-2 truncate">{p1Name}</p>
-					<p class="text-5xl font-bold tabular-nums mb-4
-						{match.winner === match.p1_id ? 'text-green-400' : ''}">
+					<p class="mb-2 truncate text-xs opacity-50">{p1Name}</p>
+					<p
+						class="mb-4 text-5xl font-bold tabular-nums
+						{match.winner === match.p1_id ? 'text-green-400' : ''}"
+					>
 						{match.p1_wins}
 					</p>
 					{#if canInteract && !done}
 						<button
 							onclick={() => handleAddWin('p1')}
 							disabled={busy}
-							class="w-full bg-fg hover:bg-fg-top border border-fg-super text-content py-4 rounded text-2xl font-bold transition-colors disabled:opacity-50 mb-3 min-h-[64px]"
+							class="mb-3 min-h-[64px] w-full rounded border border-fg-super bg-fg py-4 text-2xl font-bold text-content transition-colors hover:bg-fg-top disabled:opacity-50"
 						>
 							+1
 						</button>
@@ -186,12 +193,12 @@
 								placeholder="Set to…"
 								bind:value={p1Input}
 								onkeydown={(e) => e.key === 'Enter' && handleSetWins('p1')}
-								class="flex-1 bg-fg border border-fg-super rounded px-2 py-2 text-sm text-center text-content placeholder:opacity-30 focus:outline-none w-0"
+								class="w-0 flex-1 rounded border border-fg-super bg-fg px-2 py-2 text-center text-sm text-content placeholder:opacity-30 focus:outline-none"
 							/>
 							<button
 								onclick={() => handleSetWins('p1')}
 								disabled={busy || !p1Input}
-								class="bg-fg hover:bg-fg-top border border-fg-super px-3 py-2 rounded text-xs transition-colors disabled:opacity-40"
+								class="rounded border border-fg-super bg-fg px-3 py-2 text-xs transition-colors hover:bg-fg-top disabled:opacity-40"
 							>
 								Set
 							</button>
@@ -201,16 +208,18 @@
 
 				<!-- P2 -->
 				<div class="p-4 text-center">
-					<p class="text-xs opacity-50 mb-2 truncate">{p2Name}</p>
-					<p class="text-5xl font-bold tabular-nums mb-4
-						{match.winner === match.p2_id ? 'text-green-400' : ''}">
+					<p class="mb-2 truncate text-xs opacity-50">{p2Name}</p>
+					<p
+						class="mb-4 text-5xl font-bold tabular-nums
+						{match.winner === match.p2_id ? 'text-green-400' : ''}"
+					>
 						{match.p2_wins}
 					</p>
 					{#if canInteract && !done}
 						<button
 							onclick={() => handleAddWin('p2')}
 							disabled={busy}
-							class="w-full bg-fg hover:bg-fg-top border border-fg-super text-content py-4 rounded text-2xl font-bold transition-colors disabled:opacity-50 mb-3 min-h-[64px]"
+							class="mb-3 min-h-[64px] w-full rounded border border-fg-super bg-fg py-4 text-2xl font-bold text-content transition-colors hover:bg-fg-top disabled:opacity-50"
 						>
 							+1
 						</button>
@@ -222,12 +231,12 @@
 								placeholder="Set to…"
 								bind:value={p2Input}
 								onkeydown={(e) => e.key === 'Enter' && handleSetWins('p2')}
-								class="flex-1 bg-fg border border-fg-super rounded px-2 py-2 text-sm text-center text-content placeholder:opacity-30 focus:outline-none w-0"
+								class="w-0 flex-1 rounded border border-fg-super bg-fg px-2 py-2 text-center text-sm text-content placeholder:opacity-30 focus:outline-none"
 							/>
 							<button
 								onclick={() => handleSetWins('p2')}
 								disabled={busy || !p2Input}
-								class="bg-fg hover:bg-fg-top border border-fg-super px-3 py-2 rounded text-xs transition-colors disabled:opacity-40"
+								class="rounded border border-fg-super bg-fg px-3 py-2 text-xs transition-colors hover:bg-fg-top disabled:opacity-40"
 							>
 								Set
 							</button>
@@ -236,7 +245,7 @@
 				</div>
 			</div>
 
-			<div class="border-t border-fg-top px-4 py-2 text-xs opacity-40 text-center">
+			<div class="border-t border-fg-top px-4 py-2 text-center text-xs opacity-40">
 				First to {firstTo} wins
 			</div>
 		</div>
@@ -247,29 +256,29 @@
 				{#if !forfeitConfirm}
 					<button
 						onclick={() => (forfeitConfirm = true)}
-						class="text-xs opacity-30 hover:opacity-60 transition-colors"
+						class="text-xs opacity-30 transition-colors hover:opacity-60"
 					>
 						Forfeit…
 					</button>
 				{:else}
-					<div class="bg-mid rounded p-3 text-sm">
+					<div class="rounded bg-mid p-3 text-sm">
 						<p class="mb-2 opacity-70">Mark as forfeited — who wins?</p>
 						<div class="flex gap-2">
 							<button
 								onclick={() => match?.p1_id && handleForfeit(match.p1_id)}
-								class="flex-1 bg-fg hover:bg-fg-top border border-fg-super py-2 rounded text-xs transition-colors"
+								class="flex-1 rounded border border-fg-super bg-fg py-2 text-xs transition-colors hover:bg-fg-top"
 							>
 								{p1Name}
 							</button>
 							<button
 								onclick={() => match?.p2_id && handleForfeit(match.p2_id)}
-								class="flex-1 bg-fg hover:bg-fg-top border border-fg-super py-2 rounded text-xs transition-colors"
+								class="flex-1 rounded border border-fg-super bg-fg py-2 text-xs transition-colors hover:bg-fg-top"
 							>
 								{p2Name}
 							</button>
 							<button
 								onclick={() => (forfeitConfirm = false)}
-								class="px-3 bg-fg hover:bg-fg-top border border-fg-super py-2 rounded text-xs transition-colors opacity-50"
+								class="rounded border border-fg-super bg-fg px-3 py-2 text-xs opacity-50 transition-colors hover:bg-fg-top"
 							>
 								Cancel
 							</button>
@@ -279,27 +288,37 @@
 			</div>
 		{/if}
 
-	<!-- ── Completed / Forfeited ── -->
+		<!-- ── Completed / Forfeited ── -->
 	{:else if done}
 		{@const winner = match.winner === match.p1_id ? p1Name : p2Name}
-		<div class="bg-mid rounded p-6 text-center">
-			<p class="text-xs opacity-40 mb-1">{match.state === 'forfeited' ? 'Forfeited' : 'Completed'}</p>
-			<div class="grid grid-cols-2 gap-4 my-4">
+		<div class="rounded bg-mid p-6 text-center">
+			<p class="mb-1 text-xs opacity-40">
+				{match.state === 'forfeited' ? 'Forfeited' : 'Completed'}
+			</p>
+			<div class="my-4 grid grid-cols-2 gap-4">
 				<div class="text-center">
-					<p class="text-xs opacity-50 mb-1 truncate">{p1Name}</p>
-					<p class="text-4xl font-bold tabular-nums {match.winner === match.p1_id ? 'text-green-400' : 'opacity-50'}">
+					<p class="mb-1 truncate text-xs opacity-50">{p1Name}</p>
+					<p
+						class="text-4xl font-bold tabular-nums {match.winner === match.p1_id
+							? 'text-green-400'
+							: 'opacity-50'}"
+					>
 						{match.p1_wins}
 					</p>
 				</div>
 				<div class="text-center">
-					<p class="text-xs opacity-50 mb-1 truncate">{p2Name}</p>
-					<p class="text-4xl font-bold tabular-nums {match.winner === match.p2_id ? 'text-green-400' : 'opacity-50'}">
+					<p class="mb-1 truncate text-xs opacity-50">{p2Name}</p>
+					<p
+						class="text-4xl font-bold tabular-nums {match.winner === match.p2_id
+							? 'text-green-400'
+							: 'opacity-50'}"
+					>
 						{match.p2_wins}
 					</p>
 				</div>
 			</div>
 			<p class="text-sm font-bold text-green-400">{winner} wins</p>
-			<a href={backHref} class="block mt-4 text-xs underline opacity-50 hover:opacity-80">← Back</a>
+			<a href={backHref} class="mt-4 block text-xs underline opacity-50 hover:opacity-80">← Back</a>
 		</div>
 	{/if}
 {/if}

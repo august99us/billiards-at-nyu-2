@@ -29,17 +29,17 @@
 		get data(): Tournament | null {
 			return tournament;
 		},
-		id: tournamentId,
+		id: tournamentId
 	});
 </script>
 
 {#if notFound}
-	<div class="text-center mt-12">
+	<div class="mt-12 text-center">
 		<p class="opacity-50">Tournament not found.</p>
-		<a href="/" class="underline text-sm mt-2 block">← Back to home</a>
+		<a href="/" class="mt-2 block text-sm underline">← Back to home</a>
 	</div>
 {:else if !tournament}
-	<p class="opacity-50 text-sm">Loading…</p>
+	<p class="text-sm opacity-50">Loading…</p>
 {:else}
 	{@render children()}
 {/if}

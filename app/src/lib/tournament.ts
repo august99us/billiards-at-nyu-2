@@ -20,16 +20,32 @@ export interface Standing {
 export function computeStandings(players: TournamentPlayer[], matches: Match[]): Standing[] {
 	const map = new Map<string, Standing>();
 	for (const p of players) {
-		map.set(p.uid, { uid: p.uid, displayName: p.displayName, wins: 0, losses: 0, setsWon: 0, setsLost: 0 });
+		map.set(p.uid, {
+			uid: p.uid,
+			displayName: p.displayName,
+			wins: 0,
+			losses: 0,
+			setsWon: 0,
+			setsLost: 0
+		});
 	}
 
 	for (const m of matches) {
-		if (m.phase !== 'round_robin' || m.state !== 'completed' || !m.winner || !m.p1_id || !m.p2_id) continue;
+		if (m.phase !== 'round_robin' || m.state !== 'completed' || !m.winner || !m.p1_id || !m.p2_id)
+			continue;
 		const loser = m.winner === m.p1_id ? m.p2_id : m.p1_id;
 		const w = map.get(m.winner);
 		const l = map.get(loser);
-		if (w) { w.wins++; w.setsWon += m.winner === m.p1_id ? m.p1_wins : m.p2_wins; w.setsLost += m.winner === m.p1_id ? m.p2_wins : m.p1_wins; }
-		if (l) { l.losses++; l.setsWon += loser === m.p1_id ? m.p1_wins : m.p2_wins; l.setsLost += loser === m.p1_id ? m.p2_wins : m.p1_wins; }
+		if (w) {
+			w.wins++;
+			w.setsWon += m.winner === m.p1_id ? m.p1_wins : m.p2_wins;
+			w.setsLost += m.winner === m.p1_id ? m.p2_wins : m.p1_wins;
+		}
+		if (l) {
+			l.losses++;
+			l.setsWon += loser === m.p1_id ? m.p1_wins : m.p2_wins;
+			l.setsLost += loser === m.p1_id ? m.p2_wins : m.p1_wins;
+		}
 	}
 
 	return [...map.values()].sort((a, b) => {
@@ -109,11 +125,17 @@ export async function forfeitMatch(
 /** Return display label for a tournament status */
 export function statusLabel(status: Tournament['status']): string {
 	switch (status) {
-		case 'setup': return 'Setup';
-		case 'rr_awaiting': return 'Generating round robin…';
-		case 'round_robin': return 'Round Robin';
-		case 'bracket_awaiting': return 'Generating bracket…';
-		case 'bracket': return 'Bracket';
-		case 'complete': return 'Complete';
+		case 'setup':
+			return 'Setup';
+		case 'rr_awaiting':
+			return 'Generating round robin…';
+		case 'round_robin':
+			return 'Round Robin';
+		case 'bracket_awaiting':
+			return 'Generating bracket…';
+		case 'bracket':
+			return 'Bracket';
+		case 'complete':
+			return 'Complete';
 	}
 }

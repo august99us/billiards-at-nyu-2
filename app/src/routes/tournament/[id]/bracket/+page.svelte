@@ -24,7 +24,7 @@
 
 <div class="mb-4">
 	<a href="/tournament/{tournamentId}" class="text-xs opacity-40 hover:opacity-70">← Back</a>
-	<h2 class="text-lg font-bold mt-1">Bracket</h2>
+	<h2 class="mt-1 text-lg font-bold">Bracket</h2>
 </div>
 
 {#if tournament}

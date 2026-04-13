@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { authStore, signInWithGoogle, signInWithEmail, registerWithEmail } from '$lib/auth.svelte';
+	import {
+		authStore,
+		signInWithGoogle,
+		signInWithEmail,
+		registerWithEmail
+	} from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
@@ -50,9 +55,9 @@
 	}
 </script>
 
-<div class="max-w-sm mx-auto mt-8">
-	<div class="bg-mid rounded p-6">
-		<h1 class="text-lg font-bold mb-6 text-center">
+<div class="mx-auto mt-8 max-w-sm">
+	<div class="rounded bg-mid p-6">
+		<h1 class="mb-6 text-center text-lg font-bold">
 			{mode === 'signin' ? 'Sign in' : 'Create account'}
 		</h1>
 
@@ -60,26 +65,32 @@
 		<button
 			onclick={handleGoogle}
 			disabled={busy}
-			class="w-full bg-fg hover:bg-fg-top border border-fg-super text-content py-3 rounded mb-4 transition-colors disabled:opacity-50 text-sm"
+			class="mb-4 w-full rounded border border-fg-super bg-fg py-3 text-sm text-content transition-colors hover:bg-fg-top disabled:opacity-50"
 		>
 			Continue with Google
 		</button>
 
-		<div class="flex items-center gap-3 mb-4">
+		<div class="mb-4 flex items-center gap-3">
 			<hr class="flex-1 border-fg-super" />
 			<span class="text-xs opacity-50">or</span>
 			<hr class="flex-1 border-fg-super" />
 		</div>
 
 		<!-- Email/Password form -->
-		<form onsubmit={(e) => { e.preventDefault(); handleEmailSubmit(); }} class="flex flex-col gap-3">
+		<form
+			onsubmit={(e) => {
+				e.preventDefault();
+				handleEmailSubmit();
+			}}
+			class="flex flex-col gap-3"
+		>
 			{#if mode === 'register'}
 				<input
 					type="text"
 					placeholder="Display name"
 					bind:value={displayName}
 					required
-					class="bg-fg border border-fg-super rounded px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none focus:border-fg-super w-full"
+					class="w-full rounded border border-fg-super bg-fg px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:border-fg-super focus:outline-none"
 				/>
 			{/if}
 
@@ -88,7 +99,7 @@
 				placeholder="Email"
 				bind:value={email}
 				required
-				class="bg-fg border border-fg-super rounded px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none focus:border-fg-super w-full"
+				class="w-full rounded border border-fg-super bg-fg px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:border-fg-super focus:outline-none"
 			/>
 
 			<input
@@ -97,31 +108,43 @@
 				bind:value={password}
 				required
 				minlength={6}
-				class="bg-fg border border-fg-super rounded px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:outline-none focus:border-fg-super w-full"
+				class="w-full rounded border border-fg-super bg-fg px-3 py-2.5 text-sm text-content placeholder:opacity-40 focus:border-fg-super focus:outline-none"
 			/>
 
 			{#if error}
-				<p class="text-red-400 text-xs">{error}</p>
+				<p class="text-xs text-red-400">{error}</p>
 			{/if}
 
 			<button
 				type="submit"
 				disabled={busy}
-				class="bg-fg-super hover:bg-fg-top border border-fg-super text-content py-3 rounded transition-colors disabled:opacity-50 text-sm mt-1"
+				class="mt-1 rounded border border-fg-super bg-fg-super py-3 text-sm text-content transition-colors hover:bg-fg-top disabled:opacity-50"
 			>
 				{mode === 'signin' ? 'Sign in' : 'Create account'}
 			</button>
 		</form>
 
-		<p class="text-xs text-center mt-4 opacity-60">
+		<p class="mt-4 text-center text-xs opacity-60">
 			{#if mode === 'signin'}
 				No account?
-				<button onclick={() => { mode = 'register'; error = ''; }} class="underline">
+				<button
+					onclick={() => {
+						mode = 'register';
+						error = '';
+					}}
+					class="underline"
+				>
 					Register
 				</button>
 			{:else}
 				Already have an account?
-				<button onclick={() => { mode = 'signin'; error = ''; }} class="underline">
+				<button
+					onclick={() => {
+						mode = 'signin';
+						error = '';
+					}}
+					class="underline"
+				>
 					Sign in
 				</button>
 			{/if}

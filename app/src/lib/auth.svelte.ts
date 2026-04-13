@@ -31,7 +31,11 @@ async function syncUserProfile(firebaseUser: User) {
 		{
 			uid: firebaseUser.uid,
 			displayName: firebaseUser.displayName ?? firebaseUser.email ?? 'Unknown',
-			displayName_lower: (firebaseUser.displayName ?? firebaseUser.email ?? 'Unknown').toLowerCase(),
+			displayName_lower: (
+				firebaseUser.displayName ??
+				firebaseUser.email ??
+				'Unknown'
+			).toLowerCase(),
 			email: firebaseUser.email,
 			photoURL: firebaseUser.photoURL ?? null
 		},
