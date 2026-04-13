@@ -1,1 +1,33 @@
 @import 'tailwindcss';
+
+@theme {
+	/* Color palette from Billiards@NYU v1 */
+	--color-bg: #000000;
+	--color-mid: #252525;
+	--color-fg: #353535;
+	--color-fg-top: #3a3a3a;
+	--color-fg-super: #464646;
+	--color-content: #caccbe;
+	--color-accent: #8b7355;
+
+	/* Font */
+	--font-sans: Verdana, Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+	html {
+		scrollbar-gutter: stable;
+	}
+
+	body {
+		background-color: var(--color-bg);
+		background-image: url('/background.png');
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-size: 200vw auto;
+		background-attachment: fixed;
+		color: var(--color-content);
+		font-family: var(--font-sans);
+		font-size: 14px;
+	}
+}

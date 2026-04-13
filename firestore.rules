@@ -1,18 +1,60 @@
-rules_version='2'
+rules_version='2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2026, 5, 12);
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // ── User profiles ─────────────────────────────────────────────────────────
+    // Anyone signed in can read profiles (for player search).
+    // Only the owner can write their own profile.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && uid() == userId;
+    }
+
+    // ── Tournaments ───────────────────────────────────────────────────────────
+    match /tournaments/{tournamentId} {
+      // Any signed-in user can read a tournament.
+      allow read: if isSignedIn();
+
+      // Only the creator can create a tournament or update its top-level fields
+      // (name, config, players list, status transitions).
+      allow create: if isSignedIn()
+        && request.resource.data.createdBy == uid();
+
+      allow update: if isSignedIn()
+        && resource.data.createdBy == uid();
+
+      // ── Matches (subcollection) ────────────────────────────────────────────
+      match /matches/{matchId} {
+        // Any signed-in user can read matches.
+        allow read: if isSignedIn();
+
+        // Organizer can create matches (also done by Cloud Functions via admin SDK).
+        allow create: if isSignedIn()
+          && get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.createdBy == uid();
+
+        // A match can be updated by:
+        //   1. The tournament organizer (e.g. forfeit, corrections)
+        //   2. Either player in the match (score entry)
+        allow update: if isSignedIn() && (
+          get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.createdBy == uid()
+          || uid() == resource.data.p1_id
+          || uid() == resource.data.p2_id
+        );
+
+        // Only organizer can delete matches.
+        allow delete: if isSignedIn()
+          && get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.createdBy == uid();
+      }
     }
   }
 }
